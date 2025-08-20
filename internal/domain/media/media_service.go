@@ -1,5 +1,10 @@
 package media
 
+import (
+	"context"
+	"mime/multipart"
+)
+
 type MediaService interface {
 	Create(media *Media) error
 	GetByID(id any) (*Media, error)
@@ -9,4 +14,6 @@ type MediaService interface {
 	GetByOwner(ownerID string, limit, offset int) (Medias, error)
 	GetByTags(tags []string, limit, offset int) (Medias, error)
 	GetExpired() (Medias, error)
+	UploadMedia(ctx context.Context, m *Media, file multipart.File, fileSize int64) (*Media, error)
+	GetFile(ctx context.Context, fileName string) (interface{}, error)
 }
