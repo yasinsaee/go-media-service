@@ -1,10 +1,6 @@
 package app
 
-import (
-	"fmt"
-
-	"github.com/labstack/echo/v4"
-)
+import "github.com/yasinsaee/go-media-service/internal/app/config"
 
 func StartApp() {
 	config.LoadEnv()
@@ -14,5 +10,5 @@ func StartApp() {
 	// InitJWT()
 
 	StartGRPCServer()
-	
+
 }

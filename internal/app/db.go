@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/yasinsaee/go-user-service/internal/app/config"
+	"github.com/yasinsaee/go-media-service/internal/app/config"
 	"github.com/yasinsaee/go-user-service/pkg/mongo"
 )
 
