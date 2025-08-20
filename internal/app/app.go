@@ -7,7 +7,7 @@ func StartApp() {
 
 	InitMongo()
 
-	// InitJWT()
+	InitMinio()
 
 	StartGRPCServer()
 

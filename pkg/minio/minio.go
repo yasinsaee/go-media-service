@@ -12,12 +12,17 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+var (
+	MC *MinioClient
+)
+
 type MinioClient struct {
 	Client *minio.Client
 	Bucket string
 }
 
-func NewMinioClient(endpoint, accessKey, secretKey, bucket string, useSSL bool) *MinioClient {
+// مقداردهی مستقیم به MC
+func InitMinio(endpoint, accessKey, secretKey, bucket string, useSSL bool) {
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: useSSL,
@@ -42,13 +47,12 @@ func NewMinioClient(endpoint, accessKey, secretKey, bucket string, useSSL bool) 
 		log.Printf("✅ bucket %s already exists", bucket)
 	}
 
-	return &MinioClient{
+	MC = &MinioClient{
 		Client: client,
 		Bucket: bucket,
 	}
 }
 
-// 🔹 Upload فایل
 func (mc *MinioClient) UploadFile(ctx context.Context, file multipart.File, fileName, contentType string, fileSize int64) (string, error) {
 	_, err := mc.Client.PutObject(ctx, mc.Bucket, fileName, file, fileSize, minio.PutObjectOptions{
 		ContentType: contentType,
@@ -66,7 +70,6 @@ func (mc *MinioClient) UploadFile(ctx context.Context, file multipart.File, file
 	return url.String(), nil
 }
 
-// 🔹 دانلود فایل
 func (mc *MinioClient) GetFile(ctx context.Context, fileName string) (io.Reader, error) {
 	obj, err := mc.Client.GetObject(ctx, mc.Bucket, fileName, minio.GetObjectOptions{})
 	if err != nil {
@@ -75,7 +78,6 @@ func (mc *MinioClient) GetFile(ctx context.Context, fileName string) (io.Reader,
 	return obj, nil
 }
 
-// 🔹 حذف فایل
 func (mc *MinioClient) DeleteFile(ctx context.Context, fileName string) error {
 	err := mc.Client.RemoveObject(ctx, mc.Bucket, fileName, minio.RemoveObjectOptions{})
 	if err != nil {
