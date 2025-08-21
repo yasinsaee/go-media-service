@@ -9,7 +9,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.95
 	github.com/yaa110/go-persian-calendar v1.2.1
-	github.com/yasinsaee/go-user-service v0.0.0-20250820100115-4a2b79489301
 	go.mongodb.org/mongo-driver v1.17.4
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.39.0
