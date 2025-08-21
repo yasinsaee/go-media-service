@@ -7,8 +7,8 @@ import (
 	mediagrpc "github.com/yasinsaee/go-media-service/internal/handlers/grpc/media"
 	repository_media "github.com/yasinsaee/go-media-service/internal/repository/media"
 	"github.com/yasinsaee/go-media-service/internal/service/media"
+	mediapb "github.com/yasinsaee/go-media-service/media-service/media"
 	"github.com/yasinsaee/go-media-service/pkg/mongo"
-	mediapb "github.com/yasinsaee/go-media-service/user-service/media"
 
 	"google.golang.org/grpc"
 )
@@ -32,7 +32,7 @@ func startGRPCServer() {
 	mediaHandler := mediagrpc.New(mediaService)
 
 	//register grpc services
-	mediapb.RegisterPermissionServiceServer(s, mediaHandler)
+	mediapb.RegisterMediaServiceServer(s, mediaHandler)
 
 	log.Println("gRPC server is running on port 50051")
 	if err := s.Serve(lis); err != nil {
