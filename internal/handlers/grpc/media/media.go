@@ -65,65 +65,71 @@ func (s *Handler) UploadMedia(ctx context.Context, req *mediapb.UploadMediaReque
 	}, nil
 }
 
-// func (s *Handler) GetMedia(ctx context.Context, req *mediapb.GetMediaRequest) (*mediapb.MediaResponse, error) {
-// 	mediaObj, err := s.Service.GetByID(ctx, req.Id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *Handler) GetMedia(ctx context.Context, req *mediapb.GetMediaByIDRequest) (*mediapb.GetMediaByIDResponse, error) {
+	mediaObj, err := s.service.GetByID(req.Id)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return &mediapb.MediaResponse{
-// 		Media: &mediapb.Media{
-// 			Id:           mediaObj.ID,
-// 			FileName:     mediaObj.FileName,
-// 			OriginalName: mediaObj.OriginalName,
-// 			ContentType:  mediaObj.ContentType,
-// 			Size:         mediaObj.Size,
-// 			Url:          mediaObj.URL,
-// 			Thumbnail:    mediaObj.Thumbnail,
-// 			OwnerId:      mediaObj.OwnerID,
-// 			Tags:         mediaObj.Tags,
-// 			Privacy:      mediaObj.Privacy,
-// 			Status:       mediaObj.Status,
-// 			ExpiresAt:    mediaObj.ExpiresAt.Format(time.RFC3339),
-// 			CreatedAt:    mediaObj.CreatedAt.Format(time.RFC3339),
-// 			UpdatedAt:    mediaObj.UpdatedAt.Format(time.RFC3339),
-// 		},
-// 	}, nil
-// }
+	return &mediapb.GetMediaByIDResponse{
+		Media: &mediapb.Media{
+			Id:           mediaObj.ID,
+			FileName:     mediaObj.FileName,
+			OriginalName: mediaObj.OriginalName,
+			ContentType:  mediaObj.ContentType,
+			Size:         mediaObj.Size,
+			Url:          mediaObj.URL,
+			Thumbnail:    mediaObj.Thumbnail,
+			OwnerId:      mediaObj.OwnerID,
+			Tags:         mediaObj.Tags,
+			Privacy:      mediaObj.Privacy,
+			Status:       mediaObj.Status,
+			ExpiresAt:    timestamppb.New(mediaObj.ExpiresAt),
+			CreatedAt:    timestamppb.New(mediaObj.CreatedAt),
+			UpdatedAt:    timestamppb.New(mediaObj.UpdatedAt),
+		},
+	}, nil
+}
 
-// func (s *Handler) DeleteMedia(ctx context.Context, req *mediapb.DeleteMediaRequest) (*mediapb.DeleteMediaResponse, error) {
-// 	err := s.Service.Delete(ctx, req.Id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &mediapb.DeleteMediaResponse{Success: true}, nil
-// }
+func (s *Handler) DeleteMedia(ctx context.Context, req *mediapb.DeleteMediaRequest) (*mediapb.DeleteMediaResponse, error) {
+	err := s.service.Delete(req.Id, req.Force)
+	if err != nil {
+		return nil, err
+	}
+	return &mediapb.DeleteMediaResponse{Success: true}, nil
+}
 
-// func (s *Handler) ListMedia(ctx context.Context, req *mediapb.ListMediaRequest) (*mediapb.ListMediaResponse, error) {
-// 	medias, err := s.Service.List(ctx, req.OwnerId)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *Handler) ListMedia(ctx context.Context, req *mediapb.ListMediaRequest) (*mediapb.ListMediaResponse, error) {
+	filter := make(map[string]any, len(req.Filter))
+	for k, v := range req.Filter {
+		filter[k] = v
+	}
 
-// 	var protoMedias []*mediapb.Media
-// 	for _, m := range medias {
-// 		protoMedias = append(protoMedias, &mediapb.Media{
-// 			Id:           m.ID,
-// 			FileName:     m.FileName,
-// 			OriginalName: m.OriginalName,
-// 			ContentType:  m.ContentType,
-// 			Size:         m.Size,
-// 			Url:          m.URL,
-// 			Thumbnail:    m.Thumbnail,
-// 			OwnerId:      m.OwnerID,
-// 			Tags:         m.Tags,
-// 			Privacy:      m.Privacy,
-// 			Status:       m.Status,
-// 			ExpiresAt:    m.ExpiresAt.Format(time.RFC3339),
-// 			CreatedAt:    m.CreatedAt.Format(time.RFC3339),
-// 			UpdatedAt:    m.UpdatedAt.Format(time.RFC3339),
-// 		})
-// 	}
+	medias, err := s.service.List(filter, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, err
+	}
 
-// 	return &mediapb.ListMediaResponse{Medias: protoMedias}, nil
-// }
+	var protoMedias []*mediapb.Media
+	for _, m := range medias {
+		protoMedias = append(protoMedias, &mediapb.Media{
+			Id:           m.ID,
+			FileName:     m.FileName,
+			OriginalName: m.OriginalName,
+			ContentType:  m.ContentType,
+			Size:         m.Size,
+			Url:          m.URL,
+			Thumbnail:    m.Thumbnail,
+			OwnerId:      m.OwnerID,
+			Tags:         m.Tags,
+			Privacy:      m.Privacy,
+			Status:       m.Status,
+			ExpiresAt:    timestamppb.New(m.ExpiresAt),
+			CreatedAt:    timestamppb.New(m.CreatedAt),
+			UpdatedAt:    timestamppb.New(m.UpdatedAt),
+		})
+	}
+
+	return &mediapb.ListMediaResponse{Medias: protoMedias}, nil
+}
+
