@@ -188,8 +188,13 @@ func (x *Media) GetDeletedAt() *timestamppb.Timestamp {
 
 type UploadMediaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Media         *Media                 `protobuf:"bytes,1,opt,name=media,proto3" json:"media,omitempty"`
+	OriginalName  string                 `protobuf:"bytes,1,opt,name=original_name,json=originalName,proto3" json:"original_name,omitempty"`
 	FileContent   []byte                 `protobuf:"bytes,2,opt,name=file_content,json=fileContent,proto3" json:"file_content,omitempty"`
+	ContentType   string                 `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	Tags          []string               `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`
+	Metadata      map[string]string      `protobuf:"bytes,6,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Privacy       string                 `protobuf:"bytes,7,opt,name=privacy,proto3" json:"privacy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -224,11 +229,11 @@ func (*UploadMediaRequest) Descriptor() ([]byte, []int) {
 	return file_media_service_media_media_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *UploadMediaRequest) GetMedia() *Media {
+func (x *UploadMediaRequest) GetOriginalName() string {
 	if x != nil {
-		return x.Media
+		return x.OriginalName
 	}
-	return nil
+	return ""
 }
 
 func (x *UploadMediaRequest) GetFileContent() []byte {
@@ -236,6 +241,41 @@ func (x *UploadMediaRequest) GetFileContent() []byte {
 		return x.FileContent
 	}
 	return nil
+}
+
+func (x *UploadMediaRequest) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *UploadMediaRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
+}
+
+func (x *UploadMediaRequest) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *UploadMediaRequest) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *UploadMediaRequest) GetPrivacy() string {
+	if x != nil {
+		return x.Privacy
+	}
+	return ""
 }
 
 type UploadMediaResponse struct {
@@ -975,10 +1015,18 @@ const file_media_service_media_media_proto_rawDesc = "" +
 	"deleted_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
-	"\x12UploadMediaRequest\x12\"\n" +
-	"\x05media\x18\x01 \x01(\v2\f.media.MediaR\x05media\x12!\n" +
-	"\ffile_content\x18\x02 \x01(\fR\vfileContent\"9\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\x02\n" +
+	"\x12UploadMediaRequest\x12#\n" +
+	"\roriginal_name\x18\x01 \x01(\tR\foriginalName\x12!\n" +
+	"\ffile_content\x18\x02 \x01(\fR\vfileContent\x12!\n" +
+	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\x12\x19\n" +
+	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x12\n" +
+	"\x04tags\x18\x05 \x03(\tR\x04tags\x12C\n" +
+	"\bmetadata\x18\x06 \x03(\v2'.media.UploadMediaRequest.MetadataEntryR\bmetadata\x12\x18\n" +
+	"\aprivacy\x18\a \x01(\tR\aprivacy\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"9\n" +
 	"\x13UploadMediaResponse\x12\"\n" +
 	"\x05media\x18\x01 \x01(\v2\f.media.MediaR\x05media\"%\n" +
 	"\x13GetMediaByIDRequest\x12\x0e\n" +
@@ -1043,7 +1091,7 @@ func file_media_service_media_media_proto_rawDescGZIP() []byte {
 	return file_media_service_media_media_proto_rawDescData
 }
 
-var file_media_service_media_media_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_media_service_media_media_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_media_service_media_media_proto_goTypes = []any{
 	(*Media)(nil),                 // 0: media.Media
 	(*UploadMediaRequest)(nil),    // 1: media.UploadMediaRequest
@@ -1063,19 +1111,20 @@ var file_media_service_media_media_proto_goTypes = []any{
 	(*GetExpiredRequest)(nil),     // 15: media.GetExpiredRequest
 	(*GetExpiredResponse)(nil),    // 16: media.GetExpiredResponse
 	nil,                           // 17: media.Media.MetadataEntry
-	nil,                           // 18: media.ListMediaRequest.FilterEntry
-	(*timestamppb.Timestamp)(nil), // 19: google.protobuf.Timestamp
+	nil,                           // 18: media.UploadMediaRequest.MetadataEntry
+	nil,                           // 19: media.ListMediaRequest.FilterEntry
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
 }
 var file_media_service_media_media_proto_depIdxs = []int32{
 	17, // 0: media.Media.metadata:type_name -> media.Media.MetadataEntry
-	19, // 1: media.Media.expires_at:type_name -> google.protobuf.Timestamp
-	19, // 2: media.Media.created_at:type_name -> google.protobuf.Timestamp
-	19, // 3: media.Media.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 4: media.Media.deleted_at:type_name -> google.protobuf.Timestamp
-	0,  // 5: media.UploadMediaRequest.media:type_name -> media.Media
+	20, // 1: media.Media.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 2: media.Media.created_at:type_name -> google.protobuf.Timestamp
+	20, // 3: media.Media.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 4: media.Media.deleted_at:type_name -> google.protobuf.Timestamp
+	18, // 5: media.UploadMediaRequest.metadata:type_name -> media.UploadMediaRequest.MetadataEntry
 	0,  // 6: media.UploadMediaResponse.media:type_name -> media.Media
 	0,  // 7: media.GetMediaByIDResponse.media:type_name -> media.Media
-	18, // 8: media.ListMediaRequest.filter:type_name -> media.ListMediaRequest.FilterEntry
+	19, // 8: media.ListMediaRequest.filter:type_name -> media.ListMediaRequest.FilterEntry
 	0,  // 9: media.ListMediaResponse.medias:type_name -> media.Media
 	0,  // 10: media.UpdateMediaRequest.media:type_name -> media.Media
 	0,  // 11: media.UpdateMediaResponse.media:type_name -> media.Media
@@ -1116,7 +1165,7 @@ func file_media_service_media_media_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_media_service_media_media_proto_rawDesc), len(file_media_service_media_media_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

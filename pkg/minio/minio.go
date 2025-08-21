@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"mime/multipart"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -53,15 +52,14 @@ func InitMinio(endpoint, accessKey, secretKey, bucket string, useSSL bool) {
 	}
 }
 
-func (mc *MinioClient) UploadFile(ctx context.Context, file multipart.File, fileName, contentType string, fileSize int64) (string, error) {
-	_, err := mc.Client.PutObject(ctx, mc.Bucket, fileName, file, fileSize, minio.PutObjectOptions{
+func (mc *MinioClient) UploadFile(ctx context.Context, reader io.Reader, fileName, contentType string, fileSize int64) (string, error) {
+	_, err := mc.Client.PutObject(ctx, mc.Bucket, fileName, reader, fileSize, minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	// لینک public presigned
 	url, err := mc.Client.PresignedGetObject(ctx, mc.Bucket, fileName, time.Hour*24, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate presigned url: %w", err)

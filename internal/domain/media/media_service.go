@@ -2,7 +2,7 @@ package media
 
 import (
 	"context"
-	"mime/multipart"
+	"io"
 )
 
 type MediaService interface {
@@ -14,6 +14,7 @@ type MediaService interface {
 	GetByOwner(ownerID string, limit, offset int) (Medias, error)
 	GetByTags(tags []string, limit, offset int) (Medias, error)
 	GetExpired() (Medias, error)
-	UploadMedia(ctx context.Context, m *Media, file multipart.File, fileSize int64) (*Media, error)
+	UploadMedia(ctx context.Context, m *Media, file io.Reader, fileSize int64) (*Media, error)
 	GetFile(ctx context.Context, fileName string) (interface{}, error)
+	GenerateThumbnail(ctx context.Context, file io.Reader, fileName string) (string, error)
 }

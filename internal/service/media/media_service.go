@@ -1,10 +1,19 @@
 package media
 
 import (
+	"bytes"
 	"context"
-	"mime/multipart"
+	"image"
+	"image/jpeg"
+	"io"
+	"mime"
+	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/disintegration/imaging"
+	"github.com/google/uuid"
 	"github.com/yasinsaee/go-media-service/internal/domain/media"
 	"github.com/yasinsaee/go-media-service/pkg/minio"
 )
@@ -66,13 +75,36 @@ func (s *mediaService) GetExpired() (media.Medias, error) {
 	return s.repo.GetExpired()
 }
 
-func (s *mediaService) UploadMedia(ctx context.Context, m *media.Media, file multipart.File, fileSize int64) (*media.Media, error) {
-	url, err := minio.MC.UploadFile(ctx, file, m.FileName, m.ContentType, fileSize)
+func (s *mediaService) UploadMedia(ctx context.Context, m *media.Media, file io.Reader, fileSize int64) (*media.Media, error) {
+	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
 
+	m.ContentType = http.DetectContentType(fileBytes[:512])
+
+	ext := filepath.Ext(m.OriginalName)
+	if ext == "" {
+		if exts, _ := mime.ExtensionsByType(m.ContentType); len(exts) > 0 {
+			ext = exts[0]
+		}
+	}
+	m.FileName = uuid.New().String() + ext
+	m.Size = int64(len(fileBytes))
+
+	url, err := minio.MC.UploadFile(ctx, bytes.NewReader(fileBytes), m.FileName, m.ContentType, m.Size)
+	if err != nil {
+		return nil, err
+	}
 	m.URL = url
+
+	if strings.HasPrefix(m.ContentType, "image/") {
+		thumbURL, err := s.GenerateThumbnail(ctx, bytes.NewReader(fileBytes), m.FileName)
+		if err == nil {
+			m.Thumbnail = thumbURL
+		}
+	}
+
 	if err := s.repo.Create(m); err != nil {
 		_ = minio.MC.DeleteFile(ctx, m.FileName)
 		return nil, err
@@ -83,4 +115,26 @@ func (s *mediaService) UploadMedia(ctx context.Context, m *media.Media, file mul
 
 func (s *mediaService) GetFile(ctx context.Context, fileName string) (interface{}, error) {
 	return minio.MC.GetFile(ctx, fileName)
+}
+
+func (s *mediaService) GenerateThumbnail(ctx context.Context, file io.Reader, fileName string) (string, error) {
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return "", err
+	}
+
+	thumb := imaging.Thumbnail(img, 200, 200, imaging.Lanczos)
+
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, thumb, nil); err != nil {
+		return "", err
+	}
+
+	thumbName := "thumb_" + fileName
+	url, err := minio.MC.UploadFile(ctx, buf, thumbName, "image/jpeg", int64(buf.Len()))
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
 }

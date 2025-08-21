@@ -5,7 +5,7 @@ import (
 	"github.com/yasinsaee/go-user-service/pkg/mongo"
 )
 
-func InitMongo() {
+func initMongo() {
 	mongo.Init(mongo.Config{
 		URI:           config.GetEnv("MONGO_URI", "mongodb://localhost:27017"),
 		DB:            config.GetEnv("MONGO_DB", "user_service"),
