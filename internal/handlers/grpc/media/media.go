@@ -12,14 +12,18 @@ import (
 	"github.com/yasinsaee/go-media-service/internal/domain/media"
 )
 
-type MediaServiceServer struct {
+type Handler struct {
 	mediapb.UnimplementedMediaServiceServer
 	service media.MediaService
 }
 
+func New(service media.MediaService) *Handler {
+	return &Handler{service: service}
+}
+
 // UploadMedia handler
 // UploadMedia gRPC handler
-func (s *MediaServiceServer) UploadMedia(ctx context.Context, req *mediapb.UploadMediaRequest) (*mediapb.UploadMediaResponse, error) {
+func (s *Handler) UploadMedia(ctx context.Context, req *mediapb.UploadMediaRequest) (*mediapb.UploadMediaResponse, error) {
 	if req == nil || len(req.FileContent) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -61,7 +65,7 @@ func (s *MediaServiceServer) UploadMedia(ctx context.Context, req *mediapb.Uploa
 	}, nil
 }
 
-// func (s *MediaServiceServer) GetMedia(ctx context.Context, req *mediapb.GetMediaRequest) (*mediapb.MediaResponse, error) {
+// func (s *Handler) GetMedia(ctx context.Context, req *mediapb.GetMediaRequest) (*mediapb.MediaResponse, error) {
 // 	mediaObj, err := s.Service.GetByID(ctx, req.Id)
 // 	if err != nil {
 // 		return nil, err
@@ -87,7 +91,7 @@ func (s *MediaServiceServer) UploadMedia(ctx context.Context, req *mediapb.Uploa
 // 	}, nil
 // }
 
-// func (s *MediaServiceServer) DeleteMedia(ctx context.Context, req *mediapb.DeleteMediaRequest) (*mediapb.DeleteMediaResponse, error) {
+// func (s *Handler) DeleteMedia(ctx context.Context, req *mediapb.DeleteMediaRequest) (*mediapb.DeleteMediaResponse, error) {
 // 	err := s.Service.Delete(ctx, req.Id)
 // 	if err != nil {
 // 		return nil, err
@@ -95,7 +99,7 @@ func (s *MediaServiceServer) UploadMedia(ctx context.Context, req *mediapb.Uploa
 // 	return &mediapb.DeleteMediaResponse{Success: true}, nil
 // }
 
-// func (s *MediaServiceServer) ListMedia(ctx context.Context, req *mediapb.ListMediaRequest) (*mediapb.ListMediaResponse, error) {
+// func (s *Handler) ListMedia(ctx context.Context, req *mediapb.ListMediaRequest) (*mediapb.ListMediaResponse, error) {
 // 	medias, err := s.Service.List(ctx, req.OwnerId)
 // 	if err != nil {
 // 		return nil, err

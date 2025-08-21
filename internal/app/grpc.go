@@ -4,6 +4,12 @@ import (
 	"log"
 	"net"
 
+	mediagrpc "github.com/yasinsaee/go-media-service/internal/handlers/grpc/media"
+	repository_media "github.com/yasinsaee/go-media-service/internal/repository/media"
+	"github.com/yasinsaee/go-media-service/internal/service/media"
+	"github.com/yasinsaee/go-media-service/pkg/mongo"
+	mediapb "github.com/yasinsaee/go-media-service/user-service/media"
+
 	"google.golang.org/grpc"
 )
 
@@ -17,24 +23,16 @@ func startGRPCServer() {
 	s := grpc.NewServer()
 
 	//repos
-	// permissionRepo := repository_permission.NewMongoPermissionRepository(mongo.DB.Database, "permission")
-	// roleRepo := repository_role.NewMongoRoleRepository(mongo.DB.Database, "role")
-	// userRepo := repository_user.NewMongoUserRepository(mongo.DB.Database, "user")
+	mediaRepo := repository_media.NewMongoMediaRepository(mongo.DB.Database, "media")
 
-	// //services
-	// permissionService := permission.NewPermissionService(permissionRepo)
-	// roleService := role.NewRoleService(roleRepo)
-	// userService := user.NewUserService(userRepo)
+	//services
+	mediaService := media.NewMediaService(mediaRepo)
 
-	// //handlers
-	// permissionHandler := permissiongrpc.New(permissionService)
-	// roleHandler := rolegrpc.New(roleService, permissionService)
-	// userHandler := usergrpc.New(userService, roleService, permissionService)
+	//handlers
+	mediaHandler := mediagrpc.New(mediaService)
 
-	// //register grpc services
-	// permissionpb.RegisterPermissionServiceServer(s, permissionHandler)
-	// rolepb.RegisterRoleServiceServer(s, roleHandler)
-	// userpb.RegisterUserServiceServer(s, userHandler)
+	//register grpc services
+	mediapb.RegisterPermissionServiceServer(s, mediaHandler)
 
 	log.Println("gRPC server is running on port 50051")
 	if err := s.Serve(lis); err != nil {
