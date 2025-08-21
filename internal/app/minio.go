@@ -1,13 +1,20 @@
 package app
 
-import "github.com/yasinsaee/go-media-service/pkg/minio"
+import (
+	"strconv"
+
+	"github.com/yasinsaee/go-media-service/internal/app/config"
+	"github.com/yasinsaee/go-media-service/pkg/minio"
+)
 
 func initMinio() {
+	ssl, _ := strconv.ParseBool(config.GetEnv("MINIO_SSL", "false"))
+
 	minio.InitMinio(
-		"localhost:9000",
-		"admin",
-		"password123",
-		"media",
-		false,
+		config.GetEnv("MINIO_URI", "localhost:9000"),
+		config.GetEnv("MINIO_USERNAME", "admin"),
+		config.GetEnv("MINIO_PASSWORD", "password123"),
+		config.GetEnv("MINIO_BUCKET", "media"),
+		ssl,
 	)
 }
