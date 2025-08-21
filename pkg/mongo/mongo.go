@@ -10,7 +10,7 @@ import (
 	"unicode"
 
 	"github.com/fatih/structs"
-	"github.com/yasinsaee/go-user-service/pkg/logger"
+	"github.com/yasinsaee/go-media-service/pkg/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
